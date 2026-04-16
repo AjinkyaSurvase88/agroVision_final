@@ -1,0 +1,65 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        forest: {
+          50:  "#f0faf0", 100: "#d8f5d8", 200: "#b2eab2",
+          300: "#7dd87d", 400: "#4cbe4c", 500: "#2da42d",
+          600: "#1f8320", 700: "#1a6b1b", 800: "#175518",
+          900: "#134514", 950: "#082309",
+        },
+        soil:    { 100: "#fdf6ee", 200: "#f5e4cc", 300: "#e9c99a", 400: "#d9a868", 500: "#c4843a" },
+        sky:     { 100: "#e0f2fe", 200: "#bae6fd", 300: "#7dd3fc", 400: "#38bdf8", 500: "#0ea5e9", 600: "#0284c7" },
+        disease: { light: "#fef2f2", mid: "#f87171", dark: "#b91c1c" },
+        healthy: { light: "#f0fdf4", mid: "#4ade80", dark: "#15803d" },
+      },
+      fontFamily: {
+        display: ["'Playfair Display'", "Georgia", "serif"],
+        sans:    ["'DM Sans'", "sans-serif"],
+        mono:    ["'JetBrains Mono'", "monospace"],
+      },
+      keyframes: {
+        "fade-up":   { "0%": { opacity: "0", transform: "translateY(20px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+        "fade-in":   { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+        "scale-in":  { "0%": { opacity: "0", transform: "scale(0.93)" }, "100%": { opacity: "1", transform: "scale(1)" } },
+        "slide-right": { "0%": { opacity: "0", transform: "translateX(-16px)" }, "100%": { opacity: "1", transform: "translateX(0)" } },
+        "spin-slow": { "0%": { transform: "rotate(0deg)" }, "100%": { transform: "rotate(360deg)" } },
+        "pulse-ring": { "0%": { transform: "scale(1)", opacity: "0.6" }, "100%": { transform: "scale(1.5)", opacity: "0" } },
+        float:       { "0%,100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-8px)" } },
+        "chat-in":   { "0%": { opacity: "0", transform: "translateY(8px) scale(0.96)" }, "100%": { opacity: "1", transform: "none" } },
+        shimmer:     { "0%": { backgroundPosition: "-200% 0" }, "100%": { backgroundPosition: "200% 0" } },
+        "scan-line": { "0%": { transform: "translateY(-100%)", opacity: "0.5" }, "100%": { transform: "translateY(300%)", opacity: "0" } },
+        "count-up":  { "0%": { opacity: "0", transform: "translateY(10px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+      },
+      animation: {
+        "fade-up":    "fade-up 0.5s ease forwards",
+        "fade-in":    "fade-in 0.3s ease forwards",
+        "scale-in":   "scale-in 0.35s ease forwards",
+        "slide-right":"slide-right 0.4s ease forwards",
+        "spin-slow":  "spin-slow 2s linear infinite",
+        "pulse-ring": "pulse-ring 1.4s ease-out infinite",
+        float:        "float 3.5s ease-in-out infinite",
+        "chat-in":    "chat-in 0.25s ease forwards",
+        shimmer:      "shimmer 2s linear infinite",
+        "scan-line":  "scan-line 1.8s ease-in-out infinite",
+        "count-up":   "count-up 0.5s ease forwards",
+      },
+      backgroundImage: {
+        "hero-gradient": "linear-gradient(135deg, #082309 0%, #134514 35%, #1a6b1b 65%, #2da42d 100%)",
+        "card-gradient": "linear-gradient(135deg, #f0faf0 0%, #ffffff 100%)",
+        "leaf-pattern":  "url(\"data:image/svg+xml,%3Csvg width='52' height='52' viewBox='0 0 52 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a6b1b' fill-opacity='0.05'%3E%3Cpath d='M26 14C16 14 10 22 10 28c0 8 5 14 16 14 3.5 0 7-1 10.5-3C42 36 46 29 46 22c0-8-8-14-20-8z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+      },
+      boxShadow: {
+        card:         "0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04)",
+        "card-hover": "0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)",
+        "green-glow": "0 0 30px rgba(45,164,45,0.22)",
+        "sky-glow":   "0 0 24px rgba(14,165,233,0.2)",
+        result:       "0 8px 32px rgba(0,0,0,0.10)",
+      },
+      screens: { xs: "400px" },
+    },
+  },
+  plugins: [],
+};

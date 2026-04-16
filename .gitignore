@@ -1,0 +1,59 @@
+# ==========================
+# Python Environments & Cache
+# ==========================
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ==========================
+# Node.js (Frontend)
+# ==========================
+node_modules/
+dist/
+build/
+.npm/
+
+# ==========================
+# Heavy Files & Datasets
+# ==========================
+dataset/
+data/
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# IMPORTANT: The model file (*.h5) is NOT ignored by default here 
+# because your backend server needs it to deploy to Render/GitHub. 
+# (If your .h5 file ever exceeds 100MB, you must use Git LFS instead of regular git).
+# Uncomment the line below ONLY if you don't want to push your model to GitHub:
+# *.h5 
+
+# ==========================
+# Environment Variables
+# ==========================
+.env
+.env.local
+
+# ==========================
+# IDEs and Editors
+# ==========================
+.vscode/
+.idea/
+*.swp
+
+# ==========================
+# System Files
+# ==========================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+
+
+

@@ -1,0 +1,80 @@
+/* AgroVision v2 — Global Stylesheet */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: #f0faf0;
+  margin: 0;
+}
+
+/* ── Animation helpers ── */
+.animate-fade-up   { opacity: 0; animation-fill-mode: forwards; }
+.animate-slide-right { opacity: 0; animation-fill-mode: forwards; }
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f0faf0; }
+::-webkit-scrollbar-thumb { background: #7dd87d; border-radius: 999px; }
+
+/* ── Chat scrollbar ── */
+.chat-scroll::-webkit-scrollbar { width: 4px; }
+.chat-scroll::-webkit-scrollbar-thumb { background: #b2eab2; border-radius: 999px; }
+
+/* ── Drag & drop ring ── */
+.drop-ring { box-shadow: 0 0 0 3px #2da42d, 0 0 20px rgba(45,164,45,0.2); }
+
+/* ── Scan overlay for loading ── */
+.scan-overlay { position: relative; overflow: hidden; }
+.scan-overlay::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(45,164,45,0.18) 50%, transparent 100%);
+  height: 40%;
+  animation: scan-line 1.8s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ── Confidence bar ── */
+.confidence-bar-fill { transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* ── Shimmer skeleton ── */
+.skeleton {
+  background: linear-gradient(90deg, #e8f5e9 25%, #c8e6c9 50%, #e8f5e9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* ── Navbar active link ── */
+.nav-link-active {
+  color: #1f8320 !important;
+  background: #d8f5d8 !important;
+}
+
+/* ── Chat bubbles ── */
+.bubble-enter { animation: chat-in 0.25s ease forwards; }
+
+/* ── Page transitions ── */
+.page-enter { animation: fade-up 0.4s ease forwards; }
+
+/* ── Stagger delays ── */
+.delay-75  { animation-delay: 75ms;  }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+
+/* ── Selection ── */
+::selection { background: #d8f5d8; color: #134514; }
