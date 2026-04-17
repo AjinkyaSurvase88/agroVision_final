@@ -65,14 +65,14 @@ async def root():
 # ── Startup Event ──────────────────────────────────────────────────
 @app.on_event("startup")
 async def startup_event():
-    print("✅ AgroVision Backend Started")
-    print(f"📊 Model loaded: {app.state.model is not None}")
-    print(f"📚 Classes loaded: {len(app.state.class_names) if app.state.class_names else 0}")
+    print("[AgroVision] Backend started")
+    print(f"[AgroVision] Model loaded: {app.state.model is not None}")
+    print(f"[AgroVision] Classes loaded: {len(app.state.class_names) if app.state.class_names else 0}")
 
-# ── Shutdown Event ─────────────────────────────────────────────────
+# -- Shutdown Event -------------------------------------------------
 @app.on_event("shutdown")
 async def shutdown_event():
-    print("🛑 AgroVision Backend Shutting Down")
+    print("[AgroVision] Backend shutting down")
 
 # ── Entry Point ────────────────────────────────────────────────────
 if __name__ == "__main__":

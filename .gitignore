@@ -53,7 +53,30 @@ data/
 .DS_Store
 Thumbs.db
 ehthumbs.db
+# ==========================
+# Training & Dev Scripts (not needed for deploy)
+# ==========================
+app.py
+save_classes.py
+Figure_1.png
 
+# ==========================
+# Redundant Deployment Artifacts
+# ==========================
+Dockerfile
+docker-compose.yml
+deploy.bat
+deploy.sh
+index.html
+/requirements.txt
 
-
+# ==========================
+# Extra Docs (only README needed)
+# ==========================
+DEPLOYMENT_CHECKLIST.md
+DEPLOYMENT_GUIDE.md
+QUICK_DEPLOY.md
+MARATHI_SETUP.md
+MARATHI_TRANSLATION_GUIDE.md
+PROJECT_DOCUMENTATION.txt
 
