@@ -7,4 +7,3 @@ python-multipart
 pydantic
 python-dotenv
 requests
-python-dotenv

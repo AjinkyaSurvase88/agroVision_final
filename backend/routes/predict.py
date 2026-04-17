@@ -21,9 +21,9 @@ def load_disease_marathi():
             with open(DISEASE_MARATHI_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 disease_marathi_data = data.get("diseases", {})
-                print(f"✅ Loaded {len(disease_marathi_data)} Marathi disease translations")
+                print(f"Loaded {len(disease_marathi_data)} Marathi disease translations")
     except Exception as e:
-        print(f"⚠️ Error loading disease_marathi.json: {str(e)}")
+        print(f"Error loading disease_marathi.json: {str(e)}")
 
 # Load data on startup
 load_disease_marathi()

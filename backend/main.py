@@ -8,7 +8,7 @@ from routes.chat import router as chat_router
 
 app = FastAPI()
 
-# ✅ CORS (React connection)
+# CORS (React connection)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,17 +17,74 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 📦 Load model ONCE
+# Load model ONCE on startup
 model = tf.keras.models.load_model("model/onion_mobilenet_model.h5")
 
-# 📦 Load classes
+# Load class names
 with open("model/classes.json", "r") as f:
     class_names = json.load(f)
 
-# 🔗 Attach model to app (global access)
+# Attach to app state for global access in routes
 app.state.model = model
 app.state.class_names = class_names
 
-# 📡 Include routes
+# Include routes
 app.include_router(predict_router)
 app.include_router(chat_router)
+
+# ── Health Check Endpoint ───────────────────────────────────────────
+@app.get("/health", tags=["Health"])
+async def health_check():
+    """
+    Health check endpoint for monitoring and deployment verification.
+    Returns 200 OK if backend is running.
+    """
+    return {
+        "status": "healthy",
+        "service": "AgroVision Backend",
+        "model_loaded": app.state.model is not None,
+        "classes_loaded": app.state.class_names is not None,
+    }
+
+# ── Root Endpoint ──────────────────────────────────────────────────
+@app.get("/", tags=["Info"])
+async def root():
+    """Root endpoint with API information."""
+    return {
+        "name": "AgroVision API",
+        "version": "2.0",
+        "description": "AI-powered onion disease detection for Indian farmers",
+        "endpoints": {
+            "docs": "/docs",
+            "health": "/health",
+            "predict": "/predict/",
+            "chat": "/chat/",
+        }
+    }
+
+# ── Startup Event ──────────────────────────────────────────────────
+@app.on_event("startup")
+async def startup_event():
+    print("✅ AgroVision Backend Started")
+    print(f"📊 Model loaded: {app.state.model is not None}")
+    print(f"📚 Classes loaded: {len(app.state.class_names) if app.state.class_names else 0}")
+
+# ── Shutdown Event ─────────────────────────────────────────────────
+@app.on_event("shutdown")
+async def shutdown_event():
+    print("🛑 AgroVision Backend Shutting Down")
+
+# ── Entry Point ────────────────────────────────────────────────────
+if __name__ == "__main__":
+    import os
+    import uvicorn
+    
+    port = int(os.getenv("PORT", 8000))
+    host = os.getenv("HOST", "0.0.0.0")
+    
+    uvicorn.run(
+        app,
+        host=host,
+        port=port,
+        log_level="info"
+    )

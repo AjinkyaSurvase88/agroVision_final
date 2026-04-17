@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-import requests
+import re
 import os
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,48 +12,232 @@ router = APIRouter()
 class ChatRequest(BaseModel):
     message: str
 
-HF_API_KEY = os.getenv("HF_API_KEY", "")
-API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-base"
+# ── Gemini setup ───────────────────────────────────────────────────
+GEMINI_API_KEY = os.getenv("YOUR_GEMINI_API_KEY", "")
+_gemini_model = None
 
+if GEMINI_API_KEY:
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+        _gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+    except Exception as e:
+        print(f"Gemini init failed: {e}")
+
+GEMINI_SYSTEM_PROMPT = """तुम्ही AgroVision AI आहात — एक कांदा शेती तज्ञ सहायक.
+तुम्ही फक्त **मराठी भाषेत** उत्तर द्यावे.
+उत्तर साधे, स्पष्ट आणि शेतकऱ्यांना समजेल असे असावे.
+उत्तर ३-५ वाक्यात द्या. रोगाचे नाव, लक्षणे, उपचार आणि प्रतिबंध यांचा उल्लेख करा.
+फक्त कांदा शेती, रोग, कीटक, खत आणि शेतीशी संबंधित विषयांवर उत्तर द्या."""
+
+
+async def ask_gemini(message: str) -> str | None:
+    """Try Gemini API. Returns reply string or None on failure."""
+    if not _gemini_model:
+        return None
+    try:
+        prompt = f"{GEMINI_SYSTEM_PROMPT}\n\nशेतकऱ्याचा प्रश्न: {message}\n\nउत्तर:"
+        response = _gemini_model.generate_content(prompt)
+        reply = response.text.strip()
+        return reply if reply else None
+    except Exception as e:
+        print(f"[Gemini] API call failed: {e}. Falling back to local answers.")
+        return None
+
+
+# ── Local Marathi rule-based fallback ──────────────────────────────
+RULES = [
+    {
+        "pattern": r"purple.?blotch|alternaria|जांभूळ.?डाग",
+        "reply": (
+            "**जांभूळ डाग रोग (Purple Blotch)** हा *Alternaria porri* बुरशीमुळे होतो.\n\n"
+            "**लक्षणे:** पानांवर पाण्याने भिजलेले डाग, नंतर तपकिरी-जांभळे होतात, पिवळे वलय दिसते.\n\n"
+            "**उपचार:** मॅन्कोझेब ७५% WP (२.५ ग्रॅम/लिटर) किंवा अझॉक्सीस्ट्रोबिन (१ मिली/लिटर) फवारा. "
+            "१०-१२ दिवसांच्या अंतराने ३-४ फवारण्या करा.\n\n"
+            "**प्रतिबंध:** थेट पाणी पानांवर पडू देऊ नका, संक्रमित पाने ताबडतोब काढा, तीन वर्षांचे पिके फेरपालट करा."
+        )
+    },
+    {
+        "pattern": r"downy.?mildew|ओसी.?चिलमिरी|भुरी.?रोग",
+        "reply": (
+            "**ओसी चिलमिरी रोग (Downy Mildew)** थंड व दमट हवामानात वाढतो.\n\n"
+            "**लक्षणे:** पानांच्या वरच्या भागावर फिक्कट हिरवे/पिवळे डाग, खालच्या भागावर राखाडी-जांभळा बुरशीचा थर.\n\n"
+            "**उपचार:** मेटालॅक्सिल + मॅन्कोझेब (Ridomil) २ ग्रॅम/लिटर किंवा कॉपर ऑक्सीक्लोराइड ३ ग्रॅम/लिटर. "
+            "आठवड्यातून एकदा फवारा.\n\n"
+            "**प्रतिबंध:** ठिबक सिंचन वापरा, हवा खेळती राहील असे पिकांचे अंतर ठेवा, रोगप्रतिकारक जाती वापरा."
+        )
+    },
+    {
+        "pattern": r"stemphylium|स्टेम्फिलियम|leaf.?blight|पान.?करपा",
+        "reply": (
+            "**स्टेम्फिलियम पान करपा रोग** पानांवर छोटे, विखुरलेले तपकिरी डाग तयार करतो.\n\n"
+            "**उपचार:** टेबुकोनाझोल १ मिली/लिटर किंवा मॅन्कोझेब ७५% WP २.५ ग्रॅम/लिटर. "
+            "१०-१२ दिवसांनी २-३ फवारण्या करा.\n\n"
+            "**प्रतिबंध:** जास्त नायट्रोजन खत टाळा, पिकाचे अवशेष नष्ट करा, बियाण्यावर उपचार करा."
+        )
+    },
+    {
+        "pattern": r"botrytis|बोट्रायटिस|gray.?mold|grey.?mold",
+        "reply": (
+            "**बोट्रायटिस पान करपा रोग** दाट लागवड व ओलसर हवामानात जास्त होतो.\n\n"
+            "**उपचार:** कार्बेन्डाझिम १ ग्रॅम/लिटर किंवा इप्रोडायोन २ ग्रॅम/लिटर. १० दिवसांच्या अंतराने फवारा.\n\n"
+            "**प्रतिबंध:** पिकांमधील अंतर वाढवा, हवा खेळती ठेवा, संक्रमित पाने ताबडतोब काढा."
+        )
+    },
+    {
+        "pattern": r"bulb.?rot|कांदा.?सड|गळ.?सड|fusarium|फ्युजेरियम|wilt|वाळवा",
+        "reply": (
+            "**कांदा गळ सड / फ्युजेरियम वाळवा रोग** मातीतून पसरतो.\n\n"
+            "**लक्षणे:** कंद मऊ होतात, सडतात, पाने पिवळी पडून वाळतात.\n\n"
+            "**उपचार:** ट्रायकोडर्मा व्हिरिडे ५-१० ग्रॅम/किलो बियाण्यावर लावा. "
+            "कार्बेन्डाझिम १ ग्रॅम/लिटरने मातीला ड्रेंचिंग करा.\n\n"
+            "**प्रतिबंध:** जलभराव टाळा, पिके फेरपालट करा, संक्रमित पिकाचे अवशेष जाळून नष्ट करा."
+        )
+    },
+    {
+        "pattern": r"rust|तांबेरा",
+        "reply": (
+            "**तांबेरा रोग (Rust)** पानांवर नारंगी-तपकिरी ठिपके करतो.\n\n"
+            "**उपचार:** हेक्साकोनाझोल १ मिली/लिटर किंवा प्रोपिकोनाझोल १ मिली/लिटर. "
+            "७-१० दिवसांच्या अंतराने २-३ फवारण्या करा.\n\n"
+            "**प्रतिबंध:** योग्य अंतर ठेवा, हवा खेळती राहील याची काळजी घ्या."
+        )
+    },
+    {
+        "pattern": r"thrips|caterpillar|pest|insect|किड|अळी|कीटक",
+        "reply": (
+            "**थ्रिप्स व अळी** हे कांद्यावरील प्रमुख कीटक आहेत.\n\n"
+            "**थ्रिप्ससाठी:** इमिडाक्लोप्रिड ०.५ मिली/लिटर किंवा स्पिनोसॅड ०.५ मिली/लिटर. ७ दिवसांनी फवारा.\n\n"
+            "**अळीसाठी:** इमामेक्टिन बेन्झोएट ०.५ ग्रॅम/लिटर फवारा.\n\n"
+            "**नैसर्गिक उपाय:** कडुनिंबाचे तेल ३% (३० मिली/लिटर) वापरा. फेरोमोन सापळे लावा."
+        )
+    },
+    {
+        "pattern": r"virus|virosis|व्हायरस|पिवळी.?धारी",
+        "reply": (
+            "**व्हायरस रोग** थ्रिप्स कीटकांद्वारे पसरतो.\n\n"
+            "**लक्षणे:** पानांवर पिवळ्या धारी, मोझॅक, पाने वाकडी होतात, पीक खुंटते.\n\n"
+            "**उपचार:** व्हायरसवर थेट औषध नाही. थ्रिप्स नियंत्रणासाठी इमिडाक्लोप्रिड ०.५ मिली/लिटर फवारा. "
+            "संक्रमित झाडे उपटून नष्ट करा.\n\n"
+            "**प्रतिबंध:** रोगमुक्त बियाणे वापरा, कडुनिंब तेल ३% फवारा."
+        )
+    },
+    {
+        "pattern": r"healthy|निरोगी|चांगले|normal|good",
+        "reply": (
+            "**अभिनंदन! आपले पीक निरोगी आहे!** 🌿\n\n"
+            "पीक निरोगी ठेवण्यासाठी:\n"
+            "- संतुलित NPK खत द्या (जस्त व बोरॉन सूक्ष्म अन्नद्रव्ये द्या)\n"
+            "- नियमित पाणी द्या पण जलभराव टाळा\n"
+            "- आठवड्यातून दोनदा पिकाचे निरीक्षण करा\n"
+            "- पिकांमध्ये योग्य अंतर ठेवा"
+        )
+    },
+    {
+        "pattern": r"treatment|cure|spray|medicine|उपचार|दवा|फवारणी|औषध",
+        "reply": (
+            "**कांदा रोगांवर सामान्य उपचार मार्गदर्शन:**\n\n"
+            "**बुरशीजन्य रोगांसाठी:**\n"
+            "- मॅन्कोझेब ७५% WP: २.५ ग्रॅम/लिटर\n"
+            "- कार्बेन्डाझिम: १ ग्रॅम/लिटर\n"
+            "- हेक्साकोनाझोल: १ मिली/लिटर\n\n"
+            "**जिवाणूजन्य रोगांसाठी:**\n"
+            "- कॉपर ऑक्सीक्लोराइड: ३ ग्रॅम/लिटर\n"
+            "- स्ट्रेप्टोसायक्लिन: ०.१ ग्रॅम/लिटर\n\n"
+            "नक्की कोणता रोग आहे ते सांगा, मी अचूक डोस सांगेन!"
+        )
+    },
+    {
+        "pattern": r"prevent|prevention|protect|बचाव|प्रतिबंध|काळजी",
+        "reply": (
+            "**कांदा पिकाचे रोगांपासून संरक्षण:**\n\n"
+            "१. प्रमाणित, रोगमुक्त बियाणे वापरा व बीजोपचार करा\n"
+            "२. जलभराव टाळा, चांगली निचरा व्यवस्था ठेवा\n"
+            "३. ठिबक सिंचन वापरा — पानांवर पाणी पडू देऊ नका\n"
+            "४. १५x१० सेमी अंतरावर लागवड करा\n"
+            "५. ३ वर्षांनी पिके फेरपालट करा\n"
+            "६. आठवड्यातून दोनदा शेताची पाहणी करा"
+        )
+    },
+    {
+        "pattern": r"fertilizer|खत|nutrient|npk|पोषण",
+        "reply": (
+            "**कांदा पिकासाठी खत व्यवस्थापन:**\n\n"
+            "**लागवडीपूर्वी:** डीएपी + एमओपी: १०० किलो/एकर\n\n"
+            "**टॉप ड्रेसिंग:**\n"
+            "- ३० दिवसांनी: युरिया ५० किलो/एकर\n"
+            "- ६० दिवसांनी: युरिया २५ किलो + SOP २५ किलो/एकर\n\n"
+            "**सूक्ष्म अन्नद्रव्ये:** झिंक सल्फेट १० किलो + बोरॅक्स ५ किलो/एकर\n\n"
+            "**लक्षात ठेवा:** जास्त नायट्रोजन दिल्यास रोग जास्त होतात!"
+        )
+    },
+    {
+        "pattern": r"weather|rain|humidity|हवामान|पाऊस|ओलावा",
+        "reply": (
+            "**हवामान आणि कांदा रोग:**\n\n"
+            "आर्द्रता >७०% + तापमान १५-२५°C → बुरशीजन्य रोगांसाठी धोकादायक!\n\n"
+            "**पावसाळ्यात काय करावे:**\n"
+            "- दर ७ दिवसांनी प्रतिबंधक फवारणी करा\n"
+            "- थेट पाणी पाडणारे सिंचन टाळा\n"
+            "- शेताचा निचरा सुधारा\n\n"
+            "डॅशबोर्डवरील **हवामान कार्ड** वापरून स्थानिक हवामान तपासा!"
+        )
+    },
+    {
+        "pattern": r"hello|hi|hey|नमस्कार|नमस्ते|हॅलो|सुरुवात",
+        "reply": (
+            "**नमस्कार, शेतकरी बांधवांनो!** 🌱\n\n"
+            "मी **AgroVision AI सहायक** आहे. मी आपल्याला कांदा पिकाच्या रोगांबद्दल मदत करतो.\n\n"
+            "रोग, उपचार, प्रतिबंध किंवा खत व्यवस्थापन — कोणताही प्रश्न विचारा!"
+        )
+    },
+    {
+        "pattern": r"thank|धन्यवाद|आभारी",
+        "reply": "स्वागत आहे! **शुभ शेती!** 🌿 कांदा पिकाबद्दल कोणतेही प्रश्न असल्यास विचारा!"
+    },
+    {
+        "pattern": r"onion|कांदा|bulb|allium",
+        "reply": (
+            "**कांदा पिकावर होणारे प्रमुख रोग:**\n\n"
+            "१. जांभूळ डाग रोग (Purple Blotch)\n"
+            "२. स्टेम्फिलियम पान करपा\n"
+            "३. ओसी चिलमिरी (Downy Mildew)\n"
+            "४. बोट्रायटिस पान करपा\n"
+            "५. गळ सड रोग (Bulb Rot)\n"
+            "६. फ्युजेरियम वाळवा\n"
+            "७. तांबेरा रोग (Rust)\n"
+            "८. व्हायरस रोग (IYSV)\n\n"
+            "कोणत्याही रोगाबद्दल अधिक माहिती हवी असल्यास त्या रोगाचे नाव टाइप करा!"
+        )
+    },
+]
+
+FALLBACKS = [
+    "मी कांदा पिकाच्या रोगांबद्दल मार्गदर्शन करतो. आपले पीक कसे दिसत आहे? पानांवर कोणते डाग किंवा बदल दिसत आहेत ते सांगा.",
+    "आपला प्रश्न अधिक स्पष्ट करता येईल का? मी रोग ओळख, उपचार, प्रतिबंध आणि खत व्यवस्थापन यावर मदत करू शकतो.",
+    "मला आपल्या पिकाची अधिक माहिती द्या — पानांवर डाग आहेत का? रंग कोणता? कोणता भाग संक्रमित आहे?",
+]
+
+_fallback_idx = 0
+
+def get_local_reply(message: str) -> str:
+    global _fallback_idx
+    for rule in RULES:
+        if re.search(rule["pattern"], message, re.IGNORECASE):
+            return rule["reply"]
+    reply = FALLBACKS[_fallback_idx % len(FALLBACKS)]
+    _fallback_idx += 1
+    return reply
+
+
+# ── Main route ──────────────────────────────────────────────────────
 @router.post("/chat/")
 async def chat(data: ChatRequest):
-    try:
-        headers = {}
-        if HF_API_KEY:
-            headers["Authorization"] = f"Bearer {HF_API_KEY}"
-        
-        # System prompt for farming guidance
-        system_prompt = "आप एक कृषि सलाहकार हैं। कांदा रोगों के बारे में किसान-अनुकूल भाषा में उत्तर दें। (You are an agricultural advisor. Answer about onion diseases in farmer-friendly language.)"
-        
-        prompt = f"{system_prompt}\n\nप्रश्न (Question): {data.message}\n\nउत्तर (Answer):"
-        
-        response = requests.post(
-            API_URL,
-            json={"inputs": prompt},
-            headers=headers,
-            timeout=30
-        )
+    # 1️⃣ Try Gemini API first
+    ai_reply = await ask_gemini(data.message)
+    if ai_reply:
+        print("[Chat] Using Gemini AI response")
+        return {"reply": ai_reply}
 
-        result = response.json()
-
-        print("HF RESPONSE:", result)  # debug
-
-        # Handle error safely
-        if isinstance(result, dict) and "error" in result:
-            return {"reply": "AI लोड हो रहा है, कुछ सेकंड में फिर से प्रयास करें। (AI is loading, try again in few seconds)"}
-
-        if isinstance(result, list) and len(result) > 0:
-            reply = result[0].get("generated_text", "कोई प्रतिक्रिया नहीं (No response)")
-        else:
-            reply = "कोई प्रतिक्रिया नहीं (No response)"
-
-        return {"reply": reply}
-
-    except requests.exceptions.Timeout:
-        return {"reply": "अनुरोध समय समाप्त हो गया। कृपया बाद में पुन: प्रयास करें। (Request timed out. Please try again later.)"}
-    except requests.exceptions.RequestException as e:
-        print("ERROR:", str(e))
-        return {"reply": "सर्वर त्रुटि। कृपया बाद में पुन: प्रयास करें। (Server error. Please try again later.)"}
-    except Exception as e:
-        print("ERROR:", str(e))
-        return {"reply": "अनपेक्षित त्रुटि। कृपया बाद में पुन: प्रयास करें। (Unexpected error. Please try again later.)"}
+    # 2️⃣ Fallback to local Marathi rules
+    print("[Chat] Using local rule-based response")
+    return {"reply": get_local_reply(data.message)}
