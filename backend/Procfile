@@ -1,0 +1,4 @@
+# Procfile for Railway, Heroku, and similar platforms
+# This tells the platform how to run the application
+
+web: uvicorn main:app --host 0.0.0.0 --port $PORT
