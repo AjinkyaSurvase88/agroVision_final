@@ -16,229 +16,211 @@ Before deployment, ensure you have:
 
 ---
 
-## 🎯 Quick Decision Tree
+## 🎯 Deployment Platform
 
-**Choose your deployment platform:**
+**Using Render.com:**
 
-| Platform | Backend | Frontend | Cost | Ease |
-|----------|---------|----------|------|------|
-| **Railway** | ✅ | ✅ | Free tier | ⭐⭐⭐ Easy |
-| **Render** | ✅ | ✅ | Free tier | ⭐⭐⭐ Easy |
-| **Vercel** | ❌ | ✅ | Free tier | ⭐⭐⭐ Easy |
-| **AWS** | ✅ | ✅ | Pay-as-you-go | ⭐⭐ Medium |
-| **Azure** | ✅ | ✅ | Pay-as-you-go | ⭐⭐ Medium |
-| **DigitalOcean** | ✅ | ✅ | $5+/month | ⭐⭐ Medium |
+| Platform   | Backend | Frontend | Cost      | Ease        |
+| ---------- | ------- | -------- | --------- | ----------- |
+| **Render** | ✅      | ✅       | Free tier | ⭐⭐⭐ Easy |
 
 ---
 
-## 🌟 OPTION 1: Railway (RECOMMENDED - Easiest)
+## � Render.com Deployment (Official Guide)
 
-Railway is the simplest option with free tier and automatic Git integration.
+Render is the simplest option with free tier and automatic Git integration.
 
 ### Step 1: Prepare Git Repository
+
+Code is already pushed to GitHub. If not, run:
 
 ```bash
 cd c:\Users\ajink\OneDrive\Desktop\model-building
 
-# Initialize git (if not already done)
-git init
 git add .
-git commit -m "Initial commit - AgroVision project"
-
-# Add your GitHub/GitLab remote
-git remote add origin https://github.com/YOUR_USERNAME/agrovision.git
-git branch -M main
-git push -u origin main
+git commit -m "AgroVision deployment"
+git push origin main
 ```
 
-### Step 2: Deploy Backend to Railway
-
-1. Go to [railway.app](https://railway.app)
-2. Sign up with GitHub
-3. Click **"Create New Project"** → **"GitHub Repo"**
-4. Select your repository
-5. Click **"Deploy Now"**
-6. Under **Variables**, add environment variables:
-   ```
-   HF_API_KEY=your_hugging_face_key
-   ```
-7. Railway automatically detects `requirements.txt` and deploys
-
-**Note:** Make sure `main.py` exists in `backend/` folder
-
-### Step 3: Configure Backend for Railway
-
-Update `backend/main.py` to accept dynamic port:
-
-```python
-if __name__ == "__main__":
-    import os
-    port = int(os.getenv("PORT", 8000))
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=port)
-```
-
-Create `backend/Procfile`:
-```
-web: uvicorn main:app --host 0.0.0.0 --port $PORT
-```
-
-### Step 4: Deploy Frontend to Railway
-
-1. In Railway dashboard, click **"Create New Service"**
-2. Select **"GitHub Repo"** from your monorepo (or separate frontend repo)
-3. Set **Build Command**: `cd onion-frontend && npm install && npm run build`
-4. Set **Start Command**: `cd onion-frontend && npm start` (or use static hosting)
-5. Set **Root Directory**: `onion-frontend`
-6. Under **Environments**, add:
-   ```
-   REACT_APP_API_URL=https://your-backend-railway-url
-   ```
-
-### Step 5: Get Your URLs
-
-After deployment, Railway provides URLs:
-- Backend: `https://your-backend-name.up.railway.app`
-- Frontend: `https://your-frontend-name.up.railway.app`
-
-Update frontend `.env`:
-```env
-REACT_APP_API_URL=https://your-backend-name.up.railway.app
-```
-
----
-
-## 🎨 OPTION 2: Render.com (Free Alternative)
-
-Similar to Railway but separate deployments.
-
-### Backend Deployment
+### Step 2: Deploy Backend to Render
 
 1. Go to [render.com](https://render.com)
-2. Click **"New +"** → **"Web Service"**
-3. Connect GitHub repo
-4. Set **Build Command**: `pip install -r requirements.txt`
-5. Set **Start Command**: `uvicorn main:app --host 0.0.0.0`
-6. Add environment variables (HF_API_KEY)
-7. Click **"Deploy"**
+2. Click **"Sign up"** → Choose **"GitHub"**
+3. Click **"New +"** → Select **"Web Service"**
+4. Select your **GitHub repo** (`agroVision_final`)
+5. Click **"Connect"**
 
-### Frontend Deployment
+**Configure Backend:**
 
-1. **Option A**: Deploy as static site
-   - Click **"New +"** → **"Static Site"**
-   - Build Command: `npm install && npm run build`
-   - Publish Directory: `build`
+- **Name:** `agrovision-backend`
+- **Region:** Choose closest to you
+- **Branch:** `main`
+- **Runtime:** `Python 3`
+- **Root Directory:** Leave blank
+- **Build Command:**
+  ```
+  pip install -r backend/requirements.txt
+  ```
+- **Start Command:**
+  ```
+  cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+  ```
 
-2. **Option B**: Deploy as web service
-   - Same as backend, use `npm start`
+**Add Environment Variables:**
+
+- Click **"Environment"** tab
+- Add:
+  - **Key:** `HF_API_KEY`
+  - **Value:** _(Get from https://huggingface.co/settings/tokens)_
+
+**Deploy:** Click **"Create Web Service"**
+
+- Wait 3-5 minutes
+- You'll get URL: `https://agrovision-backend.onrender.com`
+- **Save this URL** ⚠️
+
+✅ **Test:** Visit `https://your-backend-url.onrender.com/docs`
+
+### Step 3: Deploy Frontend to Render
+
+1. Dashboard → Click **"New +"** → Select **"Static Site"**
+2. Select your **GitHub repo** again
+3. Click **"Connect"**
+
+**Configure Frontend:**
+
+- **Name:** `agrovision-frontend`
+- **Region:** Same as backend
+- **Branch:** `main`
+- **Root Directory:** `onion-frontend`
+- **Build Command:**
+  ```
+  npm install && npm run build
+  ```
+- **Publish Directory:** `build`
+
+**Add Environment Variables:**
+
+- Click **"Environment"** tab
+- Add:
+  - **Key:** `REACT_APP_API_URL`
+  - **Value:** `https://agrovision-backend.onrender.com` _(from Step 2)_
+
+**Deploy:** Click **"Create Static Site"**
+
+- Wait 5-10 minutes for build
+- You'll get URL: `https://agrovision-frontend.onrender.com`
+
+✅ **Test:** Visit `https://your-frontend-url.onrender.com`
+
+### Step 4: Verify Everything Works
+
+Open your frontend URL and test:
+
+1. **Upload Image**
+   - Click "अपलोड करा" (Upload)
+   - Select onion leaf image
+   - Should show disease in Marathi
+
+2. **Try Chat**
+   - Go to "AI चॅट" (Chat)
+   - Ask: "पर्पल ब्लॉच म्हणजे काय?" (What is purple blotch?)
+   - Should get Marathi response
+
+3. **Toggle Language**
+   - Click "मा/EN" in navbar
+   - Page switches language
+
+4. **Check Weather**
+   - Go to Dashboard
+   - Should show weather
 
 ---
 
-## ☁️ OPTION 3: Azure App Service
+## 🌐 Your Render URLs
 
-### Backend Deployment
+After deployment:
 
-1. Go to [Azure Portal](https://portal.azure.com)
-2. Create **App Service** → **Python 3.11**
-3. Create **PostgreSQL Database** (or use Azure Cosmos DB)
-4. Configure deployment:
-   ```bash
-   # In Azure Cloud Shell
-   az webapp deployment source config-zip --resource-group myGroup --name myApp --src packaged.zip
-   ```
-
-5. Set Application Settings:
-   ```
-   HF_API_KEY = your_key
-   FLASK_ENV = production
-   ```
-
-### Frontend Deployment
-
-1. Build React app:
-   ```bash
-   cd onion-frontend
-   npm run build
-   ```
-
-2. Deploy to Azure Static Web Apps:
-   - Create **Static Web App** in Azure Portal
-   - Connect GitHub repo
-   - Build preset: **React**
-   - App location: `onion-frontend`
-   - Output location: `build`
+| Component    | URL                                            |
+| ------------ | ---------------------------------------------- |
+| Backend API  | `https://agrovision-backend.onrender.com`      |
+| Frontend App | `https://agrovision-frontend.onrender.com`     |
+| API Docs     | `https://agrovision-backend.onrender.com/docs` |
 
 ---
 
-## 🐳 OPTION 4: Docker + Cloud Run (Advanced)
+## 🆘 Troubleshooting Render
 
-For containerized deployment.
+### ❌ Frontend shows "Cannot connect to API"
 
-### Create Backend Dockerfile
-
-Create `backend/Dockerfile`:
-
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 8000
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+1. Check REACT_APP_API_URL is correct
+2. Visit backend URL directly in browser
+3. If backend not working, check Render dashboard logs
+   - Render.com → agrovision-backend → Logs
 ```
 
-### Create Docker Compose (Local Testing)
+### ❌ Backend won't build
 
-Create `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-services:
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    environment:
-      - HF_API_KEY=${HF_API_KEY}
-  
-  frontend:
-    build: ./onion-frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://backend:8000
+```
+1. Check build logs: Render → agrovision-backend → Logs
+2. Verify HF_API_KEY is set in Environment variables
+3. Ensure requirements.txt exists in backend/
 ```
 
-### Test Locally
+### ❌ Image upload fails
 
-```bash
-docker-compose up
+```
+1. Open browser console: F12 → Console tab
+2. Check error message
+3. Verify: https://your-backend-url/health returns {"status": "healthy"}
 ```
 
-### Deploy to Google Cloud Run
+### ❌ Build takes too long (>15 min)
 
-```bash
-# Build image
-docker build -t agrovision-backend ./backend
+```
+Render's free tier builds can be slow. Wait longer or upgrade to paid tier for faster builds.
+```
 
-# Tag for Google Cloud
-docker tag agrovision-backend gcr.io/YOUR_PROJECT_ID/agrovision-backend
+---
 
-# Push to Google Container Registry
-docker push gcr.io/YOUR_PROJECT_ID/agrovision-backend
+## 💡 Render Pro Tips
 
-# Deploy to Cloud Run
-gcloud run deploy agrovision-backend \
-  --image gcr.io/YOUR_PROJECT_ID/agrovision-backend \
-  --platform managed \
-  --region us-central1 \
-  --set-env-vars HF_API_KEY=your_key
+✅ **Auto-Redeploy**
+
+- Every `git push` to GitHub auto-redeploys
+- No manual redeploy needed
+
+✅ **View Live Logs**
+
+- Render Dashboard → Click service → Logs
+- See real-time errors/activity
+
+✅ **Update Environment Variables**
+
+- Click Environment tab → Edit → Update
+- Service auto-restarts
+
+✅ **Free Tier Details**
+
+- 750 hours/month per service
+- Covers 24/7 operation
+- Spins down after 15 min inactivity (restarts when accessed)
+
+---
+
+## 📊 Environment Variables Reference
+
+### Backend Variables
+
+```env
+HF_API_KEY=your_hugging_face_api_key
+```
+
+### Frontend Variables
+
+```env
+REACT_APP_API_URL=https://agrovision-backend.onrender.com
 ```
 
 ---
@@ -418,7 +400,6 @@ As your application grows:
 - FastAPI docs: https://fastapi.tiangolo.com
 - React deployment: https://create-react-app.dev/deployment
 - TensorFlow serving: https://www.tensorflow.org/tfx/guide/serving
-- Railway docs: https://docs.railway.app
 - Render docs: https://docs.render.com
 
 ---

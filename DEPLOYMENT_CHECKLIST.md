@@ -3,6 +3,7 @@
 ## Pre-Deployment (Do This First)
 
 ### Prerequisites
+
 - [ ] GitHub account created
 - [ ] Project pushed to GitHub
 - [ ] Hugging Face API key obtained (https://huggingface.co/settings/tokens)
@@ -11,118 +12,48 @@
 - [ ] Docker installed (optional, for local testing)
 
 ### Code Checks
+
 - [ ] No hardcoded API keys in code
 - [ ] `.env.example` files created
 - [ ] `.env` files added to `.gitignore`
 - [ ] `requirements.txt` is up to date
 - [ ] `package.json` is up to date
 - [ ] Model files exist in `backend/model/`
-- [ ] No TODO or FIXME comments blocking deployment
+- [ ] GitHub repo is public
 
 ---
 
-## Local Testing Checklist
-
-### Backend Testing
-- [ ] Backend starts: `python -m uvicorn main:app --reload`
-- [ ] API docs load: `http://localhost:8000/docs`
-- [ ] Health check works: `http://localhost:8000/health`
-- [ ] Predict endpoint works (upload image test)
-- [ ] Chat endpoint works (test query)
-
-### Frontend Testing
-- [ ] Frontend installs: `npm install`
-- [ ] Frontend builds: `npm run build`
-- [ ] Frontend starts: `npm start`
-- [ ] App loads: `http://localhost:3000`
-- [ ] Image upload works
-- [ ] Chatbot responds
-- [ ] Language toggle works (मा/EN)
-- [ ] Results display correctly
-
-### Integration Testing
-- [ ] Both backend and frontend run together
-- [ ] Frontend can upload to backend
-- [ ] Responses are in Marathi
-- [ ] No console errors (F12 browser console)
-
----
-
-## Deployment Steps (Choose One Path)
-
-### Path A: Railway (Recommended)
+## Render Deployment Steps
 
 ```
 STEP 1: Prepare GitHub
-  [ ] Code committed: git add . && git commit -m "Deploy"
+  [ ] Code committed: git add . && git commit -m "Deploy to Render"
   [ ] Code pushed: git push origin main
   [ ] GitHub repo is public
 
 STEP 2: Deploy Backend
-  [ ] Go to https://railway.app
+  [ ] Go to https://render.com
   [ ] Sign up with GitHub
-  [ ] Create new project → Select GitHub repo
+  [ ] Click "New +" → "Web Service"
+  [ ] Select your GitHub repo
+  [ ] Set Build Command: pip install -r backend/requirements.txt
+  [ ] Set Start Command: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+  [ ] Set Root Directory: (leave blank)
   [ ] Set environment variable: HF_API_KEY=your_key
   [ ] Deploy
-  [ ] Note backend URL (e.g., my-backend.up.railway.app)
+  [ ] Wait 3-5 minutes
+  [ ] Note backend URL (e.g., agrovision-backend.onrender.com)
 
 STEP 3: Deploy Frontend
-  [ ] Create new service in same project
-  [ ] Set Build Command: cd onion-frontend && npm install && npm run build
-  [ ] Set Start Command: npm start
+  [ ] Click "New +" → "Static Site"
+  [ ] Select your GitHub repo again
   [ ] Set Root Directory: onion-frontend
-  [ ] Set Environment: REACT_APP_API_URL=https://my-backend.up.railway.app
+  [ ] Set Build Command: npm install && npm run build
+  [ ] Set Publish Directory: build
+  [ ] Set environment variable: REACT_APP_API_URL=https://agrovision-backend.onrender.com
   [ ] Deploy
+  [ ] Wait 5-10 minutes
   [ ] Test at the provided URL
-```
-
-### Path B: Docker Compose (Local)
-
-```
-STEP 1: Test Docker Setup
-  [ ] Docker installed and running
-  [ ] docker-compose.yml exists
-  [ ] Both Dockerfiles exist
-
-STEP 2: Build & Run
-  [ ] docker-compose up -d
-  [ ] Wait 30 seconds for containers to start
-  [ ] Check logs: docker-compose logs -f
-
-STEP 3: Test Locally
-  [ ] Backend: http://localhost:8000/docs
-  [ ] Frontend: http://localhost:3000
-  [ ] Upload image and test
-  [ ] docker-compose down (when done)
-
-STEP 4: Deploy to Cloud
-  [ ] Push image to Docker Hub
-  [ ] Deploy to AWS/Azure/Google Cloud
-  [ ] Update environment variables
-  [ ] Test on cloud
-```
-
-### Path C: Azure App Service
-
-```
-STEP 1: Create Backend Service
-  [ ] Azure Portal → Create App Service
-  [ ] Runtime: Python 3.11
-  [ ] Create
-  [ ] Configure app settings (HF_API_KEY)
-  [ ] Deploy code
-
-STEP 2: Create Frontend Service
-  [ ] Azure Portal → Create Static Web App
-  [ ] Select GitHub repo
-  [ ] Build preset: React
-  [ ] App location: onion-frontend
-  [ ] Deploy
-
-STEP 3: Connect Services
-  [ ] Get backend URL from App Service
-  [ ] Set REACT_APP_API_URL in frontend
-  [ ] Rebuild and deploy
 ```
 
 ---
@@ -130,6 +61,7 @@ STEP 3: Connect Services
 ## Post-Deployment Verification
 
 ### Immediate Tests (After Deploy)
+
 - [ ] Backend health check returns 200
 - [ ] Frontend loads without errors (F12 → Console)
 - [ ] Can upload image without errors
@@ -138,6 +70,7 @@ STEP 3: Connect Services
 - [ ] Chatbot responds (check /docs)
 
 ### Functional Tests (All Features)
+
 - [ ] Disease detection works with sample image
 - [ ] All 14 diseases are properly labeled
 - [ ] Audio listen feature (🔊 आईका ऐका) works
@@ -148,6 +81,7 @@ STEP 3: Connect Services
 - [ ] Chat page loads with suggestions
 
 ### Performance Tests
+
 - [ ] Page loads in < 3 seconds
 - [ ] Image upload shows progress
 - [ ] Disease detection takes 2-3 seconds
@@ -155,6 +89,7 @@ STEP 3: Connect Services
 - [ ] No console errors or warnings
 
 ### Security Tests
+
 - [ ] HF_API_KEY not visible in frontend
 - [ ] HTTPS is enabled (no warning)
 - [ ] CORS properly configured
@@ -165,18 +100,21 @@ STEP 3: Connect Services
 ## Monitoring After Deployment
 
 ### Daily Checks
+
 - [ ] Application loads without errors
 - [ ] API health check passes
 - [ ] Recent predictions working
 - [ ] No critical errors in logs
 
 ### Weekly Checks
+
 - [ ] Check usage statistics
 - [ ] Monitor API response times
 - [ ] Review error logs
 - [ ] Test all features
 
 ### Monthly Checks
+
 - [ ] Update dependencies
 - [ ] Review security advisories
 - [ ] Backup model files
@@ -186,23 +124,27 @@ STEP 3: Connect Services
 
 ## Rollback Plan (If Something Goes Wrong)
 
-### If Backend Fails
-1. Check logs for error
-2. Revert last commit: `git revert HEAD`
-3. Push: `git push origin main`
-4. Platform auto-redeploys
+### On Render Dashboard
 
-### If Frontend Fails
-1. Clear browser cache (Ctrl+Shift+Delete)
-2. Check REACT_APP_API_URL in .env
-3. Rebuild: `npm run build`
-4. Redeploy
+1. **Check Logs**
+   - Go to service
+   - Click "Logs" tab
+   - See what failed
 
-### If Model is Missing
-1. Verify file exists: `ls -la backend/model/`
-2. Check file size (should be ~60-80 MB)
-3. If missing, download from training output
-4. Redeploy backend
+2. **Revert Code**
+   - `git revert HEAD`
+   - `git push origin main`
+   - Render auto-redeploys
+
+3. **Update Environment Variables**
+   - Click Environment tab
+   - Fix values
+   - Save (service auto-restarts)
+
+4. **Redeploy Service**
+   - Click "Manual Deploy" button
+   - Select commit to redeploy
+   - Wait for build to complete
 
 ---
 
@@ -211,6 +153,7 @@ STEP 3: Connect Services
 After deployment, you should see:
 
 ✅ **Functionality**
+
 - Users can upload images
 - Disease detection works
 - Marathi translations display
@@ -218,18 +161,21 @@ After deployment, you should see:
 - Audio listen feature works
 
 ✅ **Performance**
+
 - Page loads < 3 seconds
 - Image processing < 5 seconds
 - Chat response < 2 seconds
 - No broken features
 
 ✅ **Reliability**
+
 - 99%+ uptime
 - Auto-restart on failure
 - Health checks passing
 - Error logs clean
 
 ✅ **User Experience**
+
 - Interface is responsive
 - Buttons work immediately
 - Results are accurate
@@ -237,16 +183,18 @@ After deployment, you should see:
 
 ---
 
-## Troubleshooting Quick Links
+## Troubleshooting on Render
 
-| Issue | Solution |
-|-------|----------|
-| API 404 error | Check `REACT_APP_API_URL` and backend is running |
-| Image upload fails | Verify backend can access model file |
-| Marathi text shows ??? | Check encoding is UTF-8 |
-| Chat not responding | Verify `HF_API_KEY` is set |
-| App very slow | Check server resources or model loading |
-| CORS error | Update `allow_origins` in backend main.py |
+| Issue                        | Solution                                                                         |
+| ---------------------------- | -------------------------------------------------------------------------------- |
+| API 404 error                | Check `REACT_APP_API_URL` in Static Site Environment, verify backend is running  |
+| Image upload fails           | Check Render logs, verify HF_API_KEY is set, check backend health endpoint       |
+| Marathi text shows ???       | Check file encoding is UTF-8, reload page                                        |
+| Chat not responding          | Verify `HF_API_KEY` is set in Web Service Environment, check logs                |
+| App very slow                | Render free tier may be slow, consider upgrading to paid tier                    |
+| Build fails                  | Click Logs tab on Render, find error message, fix and push to GitHub             |
+| Frontend can't reach backend | Verify REACT_APP_API_URL matches your backend URL exactly, check CORS on backend |
+| Service spinning down        | Render free tier spins down after 15 min inactivity, accessing URL wakes it      |
 
 ---
 
@@ -269,7 +217,7 @@ After deployment, you should see:
 
 ## 🎉 Ready to Deploy?
 
-If all checkboxes above are checked, you're ready to deploy! 
+If all checkboxes above are checked, you're ready to deploy!
 
 **Recommended Path:** Railway (5 minutes, free tier)
 
