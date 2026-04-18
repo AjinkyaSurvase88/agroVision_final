@@ -32,14 +32,14 @@ const Badge = ({ icon, text }) => (
 const Stat = ({ value, label }) => (
   <div className="text-center">
     <p className="font-display text-3xl font-bold text-white">{value}</p>
-    <p className="text-forest-300 text-xs font-sans mt-0.5">{label}</p>
+    <p className="text-secondary-100 text-xs font-sans mt-0.5">{label}</p>
   </div>
 );
 
 // ── Photo tip ─────────────────────────────────────────────────────
 const Tip = ({ text }) => (
-  <li className="flex items-center gap-2 text-xs font-sans text-forest-600">
-    <svg viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-forest-500 flex-shrink-0"
+  <li className="flex items-center gap-2 text-xs font-sans text-primary-700">
+    <svg viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-accent-600 flex-shrink-0"
       xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M3 8l3 3 7-7" stroke="currentColor" strokeWidth="1.6"
         strokeLinecap="round" strokeLinejoin="round"/>
@@ -86,8 +86,8 @@ const Home = () => {
       {/* ══ HERO ══════════════════════════════════════════════════ */}
       <section className="relative overflow-hidden bg-hero-gradient text-white">
         {/* Leaf decorations */}
-        <LeafDecor className="absolute -top-6 -right-6 w-56 h-56 text-forest-400 animate-float pointer-events-none" />
-        <LeafDecor className="absolute bottom-0 -left-12 w-44 h-44 text-forest-600 opacity-25 pointer-events-none"
+        <LeafDecor className="absolute -top-6 -right-6 w-56 h-56 text-secondary-400 animate-float pointer-events-none" />
+        <LeafDecor className="absolute bottom-0 -left-12 w-44 h-44 text-secondary-600 opacity-25 pointer-events-none"
           style={{ animationDelay: '1.6s' }} />
 
         {/* Leaf-pattern overlay */}
@@ -98,8 +98,8 @@ const Home = () => {
           {/* Eyebrow */}
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20
             rounded-full px-4 py-1.5 mb-6 animate-fade-up">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-xs font-mono font-semibold text-forest-200 uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-300 animate-pulse" />
+            <span className="text-xs font-mono font-semibold text-secondary-100 uppercase tracking-wider">
               AI Model Active
             </span>
           </div>
@@ -108,13 +108,13 @@ const Home = () => {
           <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold leading-tight
             mb-5 animate-fade-up delay-100">
             AI-Powered Crop<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-forest-300 to-green-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary-200 to-highlight-300">
               Disease Detection
             </span>
           </h1>
 
           {/* Tagline */}
-          <p className="font-sans text-forest-200 text-base sm:text-lg max-w-lg mx-auto mb-8
+          <p className="font-sans text-secondary-100 text-base sm:text-lg max-w-lg mx-auto mb-8
             leading-relaxed animate-fade-up delay-200">
             Smart agriculture platform — detect onion diseases instantly, check local
             weather, and get AI-powered farming advice.
@@ -142,7 +142,7 @@ const Home = () => {
         <div className="-mb-px relative z-10">
           <svg viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="none" className="w-full h-10 sm:h-14" aria-hidden="true">
-            <path d="M0 56V28C240 0 480 56 720 28 960 0 1200 56 1440 28V56H0z" fill="#f0faf0"/>
+            <path d="M0 56V28C240 0 480 56 720 28 960 0 1200 56 1440 28V56H0z" fill="#f6fbf1"/>
           </svg>
         </div>
       </section>

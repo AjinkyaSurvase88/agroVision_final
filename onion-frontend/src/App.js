@@ -10,8 +10,11 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import ChatPage from './pages/ChatPage';
 import OnionInfo from './pages/OnionInfo';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 import { HistoryContext } from './context/HistoryContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   // Global prediction history — shared across pages
@@ -37,22 +40,26 @@ function App() {
   }, []);
 
   return (
-    <LanguageProvider>
-      <HistoryContext.Provider value={{ history, addHistoryEntry, clearHistory }}>
-        <div className="min-h-screen bg-forest-50 flex flex-col">
-          <Navbar />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/"          element={<Home />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/chat"      element={<ChatPage />} />
-              <Route path="/onion-info" element={<OnionInfo />} />
-              <Route path="*"          element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-        </div>
-      </HistoryContext.Provider>
-    </LanguageProvider>
+    <AuthProvider>
+      <LanguageProvider>
+        <HistoryContext.Provider value={{ history, addHistoryEntry, clearHistory }}>
+          <div className="min-h-screen bg-gradient-to-br from-primary-50 via-secondary-50 to-highlight-50 flex flex-col">
+            <Navbar />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/"          element={<Home />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/chat"      element={<ChatPage />} />
+                <Route path="/onion-info" element={<OnionInfo />} />
+                <Route path="/login"     element={<Login />} />
+                <Route path="/signup"    element={<Signup />} />
+                <Route path="*"          element={<Navigate to="/" replace />} />
+              </Routes>
+            </main>
+          </div>
+        </HistoryContext.Provider>
+      </LanguageProvider>
+    </AuthProvider>
   );
 }
 

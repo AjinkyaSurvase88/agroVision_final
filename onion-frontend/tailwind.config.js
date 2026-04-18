@@ -4,11 +4,34 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        primary: {
+          50:  "#f1f5ed", 100: "#dfe8d5", 200: "#c5d5a8",
+          300: "#a8c07f", 400: "#8baa57", 500: "#6d9531",
+          600: "#56812a", 700: "#468432", 800: "#3a6b2a",
+          900: "#2d5220", 950: "#1a3010",
+        },
+        secondary: {
+          50:  "#f6fbf1", 100: "#ebf7db", 200: "#d7edb5",
+          300: "#c3e38e", 400: "#aed968", 500: "#9ad872",
+          600: "#85c24a", 700: "#70ab42", 800: "#5a8a38", 900: "#46692f",
+        },
+        accent: {
+          50:  "#fffaf0", 100: "#fff4d8", 200: "#ffe8b1",
+          300: "#ffdc89", 400: "#ffd061", 500: "#ffc439",
+          600: "#ffb811", 700: "#ffa02e", 800: "#e58a1a",
+          900: "#cc7700",
+        },
+        highlight: {
+          50:  "#fffef5", 100: "#fffde6", 200: "#fffbcd",
+          300: "#fff9b4", 400: "#fff79b", 500: "#ffef91",
+          600: "#ffe77d", 700: "#ffdf63", 800: "#ffd849",
+          900: "#ffcf2f",
+        },
         forest: {
-          50:  "#f0faf0", 100: "#d8f5d8", 200: "#b2eab2",
-          300: "#7dd87d", 400: "#4cbe4c", 500: "#2da42d",
-          600: "#1f8320", 700: "#1a6b1b", 800: "#175518",
-          900: "#134514", 950: "#082309",
+          50:  "#f1f5ed", 100: "#dfe8d5", 200: "#c5d5a8",
+          300: "#a8c07f", 400: "#8baa57", 500: "#6d9531",
+          600: "#56812a", 700: "#468432", 800: "#3a6b2a",
+          900: "#2d5220", 950: "#1a3010",
         },
         soil:    { 100: "#fdf6ee", 200: "#f5e4cc", 300: "#e9c99a", 400: "#d9a868", 500: "#c4843a" },
         sky:     { 100: "#e0f2fe", 200: "#bae6fd", 300: "#7dd3fc", 400: "#38bdf8", 500: "#0ea5e9", 600: "#0284c7" },
@@ -47,14 +70,16 @@ module.exports = {
         "count-up":   "count-up 0.5s ease forwards",
       },
       backgroundImage: {
-        "hero-gradient": "linear-gradient(135deg, #082309 0%, #134514 35%, #1a6b1b 65%, #2da42d 100%)",
-        "card-gradient": "linear-gradient(135deg, #f0faf0 0%, #ffffff 100%)",
-        "leaf-pattern":  "url(\"data:image/svg+xml,%3Csvg width='52' height='52' viewBox='0 0 52 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a6b1b' fill-opacity='0.05'%3E%3Cpath d='M26 14C16 14 10 22 10 28c0 8 5 14 16 14 3.5 0 7-1 10.5-3C42 36 46 29 46 22c0-8-8-14-20-8z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+        "hero-gradient": "linear-gradient(135deg, #468432 0%, #56812a 35%, #5a8a38 65%, #9ad872 100%)",
+        "card-gradient": "linear-gradient(135deg, #f6fbf1 0%, #ffffff 100%)",
+        "accent-gradient": "linear-gradient(135deg, #468432 0%, #ffa02e 100%)",
+        "leaf-pattern":  "url(\"data:image/svg+xml,%3Csvg width='52' height='52' viewBox='0 0 52 52' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23468432' fill-opacity='0.05'%3E%3Cpath d='M26 14C16 14 10 22 10 28c0 8 5 14 16 14 3.5 0 7-1 10.5-3C42 36 46 29 46 22c0-8-8-14-20-8z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
       },
       boxShadow: {
-        card:         "0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04)",
-        "card-hover": "0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)",
-        "green-glow": "0 0 30px rgba(45,164,45,0.22)",
+        card:         "0 4px 24px rgba(70,132,50,0.08), 0 1px 4px rgba(0,0,0,0.04)",
+        "card-hover": "0 12px 40px rgba(70,132,50,0.15), 0 4px 12px rgba(0,0,0,0.06)",
+        "green-glow": "0 0 30px rgba(70,132,50,0.25)",
+        "orange-glow": "0 0 30px rgba(255,160,46,0.25)",
         "sky-glow":   "0 0 24px rgba(14,165,233,0.2)",
         result:       "0 8px 32px rgba(0,0,0,0.10)",
       },

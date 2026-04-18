@@ -12,7 +12,7 @@ html { scroll-behavior: smooth; }
 body {
   font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
-  background-color: #f0faf0;
+  background: linear-gradient(135deg, #f6fbf1 0%, #fffef5 100%);
   margin: 0;
 }
 
@@ -22,22 +22,22 @@ body {
 
 /* ── Custom scrollbar ── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #f0faf0; }
-::-webkit-scrollbar-thumb { background: #7dd87d; border-radius: 999px; }
+::-webkit-scrollbar-track { background: #f6fbf1; }
+::-webkit-scrollbar-thumb { background: #9ad872; border-radius: 999px; }
 
 /* ── Chat scrollbar ── */
 .chat-scroll::-webkit-scrollbar { width: 4px; }
-.chat-scroll::-webkit-scrollbar-thumb { background: #b2eab2; border-radius: 999px; }
+.chat-scroll::-webkit-scrollbar-thumb { background: #c3e38e; border-radius: 999px; }
 
 /* ── Drag & drop ring ── */
-.drop-ring { box-shadow: 0 0 0 3px #2da42d, 0 0 20px rgba(45,164,45,0.2); }
+.drop-ring { box-shadow: 0 0 0 3px #ffa02e, 0 0 20px rgba(255,160,46,0.25); }
 
 /* ── Scan overlay for loading ── */
 .scan-overlay { position: relative; overflow: hidden; }
 .scan-overlay::after {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(to bottom, transparent 0%, rgba(45,164,45,0.18) 50%, transparent 100%);
+  background: linear-gradient(to bottom, transparent 0%, rgba(255,160,46,0.15) 50%, transparent 100%);
   height: 40%;
   animation: scan-line 1.8s ease-in-out infinite;
   pointer-events: none;
@@ -49,15 +49,16 @@ body {
 
 /* ── Shimmer skeleton ── */
 .skeleton {
-  background: linear-gradient(90deg, #e8f5e9 25%, #c8e6c9 50%, #e8f5e9 75%);
+  background: linear-gradient(90deg, #ebf7db 25%, #d7edb5 50%, #ebf7db 75%);
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
 
 /* ── Navbar active link ── */
 .nav-link-active {
-  color: #1f8320 !important;
-  background: #d8f5d8 !important;
+  color: #ffa02e !important;
+  background: #fff9b4 !important;
+  font-weight: 600;
 }
 
 /* ── Chat bubbles ── */
@@ -77,4 +78,4 @@ body {
 .delay-600 { animation-delay: 600ms; }
 
 /* ── Selection ── */
-::selection { background: #d8f5d8; color: #134514; }
+::selection { background: #ffef91; color: #468432; }

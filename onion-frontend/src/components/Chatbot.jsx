@@ -204,9 +204,7 @@ const Chatbot = ({ compact = false }) => {
   useEffect(() => {
     const el = bottomRef.current?.parentElement;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages, loading, stage]);1
-  Chatbot.jsx
-  Generating
+  }, [messages, loading, stage]);
 
   // ── Send any query ────────────────────────────────────────────
   const sendQuery = useCallback(async (userLabel, backendQuery) => {

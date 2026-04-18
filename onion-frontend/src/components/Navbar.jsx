@@ -4,8 +4,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 // ── Icons ──────────────────────────────────────────────────────────
 const HomeIcon = () => (
@@ -50,7 +51,9 @@ const Navbar = () => {
   const [open,     setOpen]     = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { t, toggleLanguage } = useTranslation();
+  const { user, logout } = useAuth();
 
   // Close mobile menu on route change
   useEffect(() => { setOpen(false); }, [location]);
@@ -65,20 +68,20 @@ const Navbar = () => {
   return (
     <header
       className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-shadow duration-300 ${
-        scrolled ? 'shadow-md' : 'shadow-sm'
-      } border-b border-forest-100`}
+        scrolled ? 'shadow-lg shadow-primary-500/10' : 'shadow-sm'
+      } border-b border-primary-100`}
     >
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
 
         {/* Brand */}
         <NavLink to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 bg-forest-700 rounded-lg flex items-center justify-center text-white group-hover:bg-forest-600 transition-colors">
+          <div className="w-8 h-8 bg-gradient-to-br from-primary-700 to-primary-900 rounded-lg flex items-center justify-center text-white group-hover:shadow-green-glow transition-all">
             <LeafIcon />
           </div>
-          <span className="font-display font-bold text-lg text-forest-900 tracking-tight">
-            Agro<span className="text-forest-500">Vision</span>
+          <span className="font-display font-bold text-lg text-primary-900 tracking-tight">
+            Agro<span className="text-accent-600">Vision</span>
           </span>
-          <span className="hidden xs:inline text-[10px] font-mono font-semibold bg-forest-100 text-forest-600 px-2 py-0.5 rounded-full tracking-wider uppercase">
+          <span className="hidden xs:inline text-[10px] font-mono font-semibold bg-accent-100 text-accent-700 px-2 py-0.5 rounded-full tracking-wider uppercase">
             v2
           </span>
         </NavLink>
@@ -93,8 +96,8 @@ const Navbar = () => {
               className={({ isActive }) =>
                 `flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-sans font-medium transition-all duration-200 ${
                   isActive
-                    ? 'nav-link-active'
-                    : 'text-gray-500 hover:text-forest-700 hover:bg-forest-50'
+                    ? 'bg-accent-50 text-accent-700 shadow-sm'
+                    : 'text-gray-600 hover:text-primary-700 hover:bg-primary-50'
                 }`
               }
             >
@@ -109,27 +112,60 @@ const Navbar = () => {
           {/* Language toggle */}
           <button
             onClick={toggleLanguage}
-            className="text-xs font-sans font-medium text-forest-700 bg-forest-50 border border-forest-200 rounded-full px-3 py-1.5 hover:bg-forest-100 transition-colors"
+            className="text-xs font-sans font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded-full px-3 py-1.5 hover:bg-primary-100 transition-colors"
             title="Toggle language"
           >
             मा/EN
           </button>
 
-          <span className="hidden sm:flex items-center gap-1.5 text-xs font-sans font-medium text-forest-700 bg-forest-50 border border-forest-200 rounded-full px-3 py-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-forest-500 animate-pulse" />
+          <span className="hidden sm:flex items-center gap-1.5 text-xs font-sans font-medium text-accent-700 bg-accent-50 border border-accent-200 rounded-full px-3 py-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-500 animate-pulse" />
             AI Active
           </span>
 
+          {/* Auth section */}
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:block text-xs font-sans font-medium text-gray-700 bg-primary-50 border border-primary-200 rounded-full px-3 py-1.5">
+                👤 {user.username}
+              </span>
+              <button
+                onClick={() => {
+                  logout();
+                  navigate('/');
+                }}
+                className="text-xs font-sans font-medium text-white bg-gradient-to-r from-primary-600 to-primary-700 rounded-full px-3 py-1.5 hover:shadow-green-glow transition-all"
+              >
+                लॉगआउट
+              </button>
+            </div>
+          ) : (
+            <div className="hidden sm:flex items-center gap-2">
+              <button
+                onClick={() => navigate('/login')}
+                className="text-xs font-sans font-medium text-primary-700 bg-white border border-primary-200 rounded-full px-3 py-1.5 hover:bg-primary-50 transition-colors"
+              >
+                लॉगिन
+              </button>
+              <button
+                onClick={() => navigate('/signup')}
+                className="text-xs font-sans font-medium text-white bg-gradient-to-r from-accent-600 to-accent-700 rounded-full px-3 py-1.5 hover:shadow-orange-glow transition-all"
+              >
+                साइन अप
+              </button>
+            </div>
+          )}
+
           {/* Hamburger */}
           <button
-            className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-forest-50 transition-colors"
+            className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-lg hover:bg-primary-50 transition-colors"
             onClick={() => setOpen(o => !o)}
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
           >
-            <span className={`block w-5 h-0.5 bg-forest-800 transition-transform duration-300 ${open ? 'translate-y-2 rotate-45' : ''}`} />
-            <span className={`block w-5 h-0.5 bg-forest-800 transition-opacity duration-300 ${open ? 'opacity-0' : ''}`} />
-            <span className={`block w-5 h-0.5 bg-forest-800 transition-transform duration-300 ${open ? '-translate-y-2 -rotate-45' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-primary-800 transition-transform duration-300 ${open ? 'translate-y-2 rotate-45' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-primary-800 transition-opacity duration-300 ${open ? 'opacity-0' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-primary-800 transition-transform duration-300 ${open ? '-translate-y-2 -rotate-45' : ''}`} />
           </button>
         </div>
       </nav>
@@ -137,8 +173,8 @@ const Navbar = () => {
       {/* Mobile menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          open ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
-        } border-t border-forest-100 bg-white`}
+          open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        } border-t border-primary-100 bg-white`}
       >
         <div className="px-4 py-3 flex flex-col gap-1">
           {LINKS.map(({ to, labelKey, Icon }) => (
@@ -149,8 +185,8 @@ const Navbar = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-sans font-medium transition-all ${
                   isActive
-                    ? 'nav-link-active'
-                    : 'text-gray-600 hover:bg-forest-50 hover:text-forest-800'
+                    ? 'bg-accent-50 text-accent-700'
+                    : 'text-gray-600 hover:bg-primary-50 hover:text-primary-700'
                 }`
               }
             >
@@ -158,6 +194,48 @@ const Navbar = () => {
               {t(labelKey)}
             </NavLink>
           ))}
+          
+          {/* Mobile auth options */}
+          <div className="border-t border-gray-200 mt-3 pt-3">
+            {user ? (
+              <>
+                <div className="px-4 py-2 text-sm font-sans text-gray-600 mb-2">
+                  👤 {user.username}
+                </div>
+                <button
+                  onClick={() => {
+                    logout();
+                    navigate('/');
+                    setOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-sans font-medium text-primary-700 hover:bg-primary-50 transition-all"
+                >
+                  लॉगआउट करा
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => {
+                    navigate('/login');
+                    setOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-sans font-medium text-primary-700 hover:bg-primary-50 transition-all"
+                >
+                  लॉगिन करा
+                </button>
+                <button
+                  onClick={() => {
+                    navigate('/signup');
+                    setOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-3 rounded-xl text-sm font-sans font-medium text-accent-700 hover:bg-accent-50 transition-all"
+                >
+                  साइन अप करा
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </header>
