@@ -9,8 +9,11 @@ from utils.preprocess import preprocess_image
 
 router = APIRouter()
 
+# Get base directory (backend folder)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Load Marathi disease information
-DISEASE_MARATHI_PATH = "model/disease_marathi.json"
+DISEASE_MARATHI_PATH = os.path.join(BASE_DIR, "model", "disease_marathi.json")
 disease_marathi_data = {}
 
 def load_disease_marathi():
@@ -22,6 +25,8 @@ def load_disease_marathi():
                 data = json.load(f)
                 disease_marathi_data = data.get("diseases", {})
                 print(f"Loaded {len(disease_marathi_data)} Marathi disease translations")
+        else:
+            print(f"[Warning] Disease Marathi file not found at: {DISEASE_MARATHI_PATH}")
     except Exception as e:
         print(f"Error loading disease_marathi.json: {str(e)}")
 

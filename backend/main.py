@@ -2,9 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import tensorflow as tf
 import json
+import os
 
 from routes.predict import router as predict_router
 from routes.chat import router as chat_router
+from routes.auth import router as auth_router
 
 app = FastAPI()
 
@@ -17,11 +19,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Get base directory (backend folder)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Load model ONCE on startup
-model = tf.keras.models.load_model("model/onion_mobilenet_model.h5")
+model_path = os.path.join(BASE_DIR, "model", "onion_mobilenet_model.h5")
+model = tf.keras.models.load_model(model_path)
 
 # Load class names
-with open("model/classes.json", "r") as f:
+classes_path = os.path.join(BASE_DIR, "model", "classes.json")
+with open(classes_path, "r") as f:
     class_names = json.load(f)
 
 # Attach to app state for global access in routes
@@ -31,6 +38,7 @@ app.state.class_names = class_names
 # Include routes
 app.include_router(predict_router)
 app.include_router(chat_router)
+app.include_router(auth_router)
 
 # ── Health Check Endpoint ───────────────────────────────────────────
 @app.get("/health", tags=["Health"])

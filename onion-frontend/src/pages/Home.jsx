@@ -262,7 +262,7 @@ const Home = () => {
             <div>
               <p className="text-[10px] font-mono font-semibold uppercase tracking-widest
                 text-gray-400 mb-3">Local Weather</p>
-              <WeatherCard defaultCity="Nashik" />
+              <WeatherCard defaultCity="Solapur" />
             </div>
 
             {/* Disease quick-ref */}

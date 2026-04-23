@@ -281,7 +281,7 @@ const Dashboard = () => {
           <div className="animate-fade-up delay-100">
             <p className="text-[10px] font-mono font-semibold uppercase tracking-widest
               text-gray-400 mb-3">Local Weather</p>
-            <WeatherCard defaultCity="Nashik" />
+            <WeatherCard defaultCity="Solapur" />
           </div>
 
           {/* AI Chat */}

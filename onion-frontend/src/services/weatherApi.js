@@ -11,7 +11,7 @@ const OWM_BASE = 'https://api.openweathermap.org/data/2.5';
 // ── Mock data for demo mode ──────────────────────────────────────────
 const MOCK_DB = {
   default: {
-    city: 'Nashik', country: 'IN',
+    city: 'Solapur', country: 'IN',
     temp: 28, feels_like: 31, humidity: 62,
     wind_speed: 14, visibility: 10,
     condition: 'Partly Cloudy', icon: '02d',

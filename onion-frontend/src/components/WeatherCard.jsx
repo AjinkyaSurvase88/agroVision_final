@@ -36,7 +36,7 @@ const StatPill = ({ icon, label, value }) => (
   </div>
 );
 
-const WeatherCard = ({ defaultCity = 'Nashik' }) => {
+const WeatherCard = ({ defaultCity = 'Solapur' }) => {
   const [city,    setCity]    = useState(defaultCity);
   const [input,   setInput]   = useState(defaultCity);
   const [data,    setData]    = useState(null);

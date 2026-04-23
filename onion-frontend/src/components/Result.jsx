@@ -47,26 +47,30 @@ const Result = ({ result, onReset }) => {
       // Combine formatted text with section headers
       let fullText = '';
       
-      if (result.symptoms) {
-        fullText += `रोगाचे लक्षणे. ${result.symptoms}. `;
-      }
-      
-      if (result.treatment) {
-        fullText += `उपचार. ${result.treatment}. `;
-      }
+      if (healthy) {
+        fullText = 'आपल्या पिकाची स्थिती चांगली आहे. नियमितपणे पाणी द्या, आणि संतुलित खत वापरा.';
+      } else {
+        if (result.symptoms) {
+          fullText += `रोगाचे लक्षणे. ${result.symptoms}. `;
+        }
+        
+        if (result.treatment) {
+          fullText += `उपचार. ${result.treatment}. `;
+        }
 
-      // Add safety warnings
-      fullText += `महत्वाचे सावधानी. शिडकाव करण्यापूर्वी संपूर्ण निर्देश वाचा. दस्ताने, मुखवटा आणि कपडे वापरा. शिडकाव करणे असूनसही व्यक्तीशी नेहमी संपर्क साधा. अनुभवी कृषी अधिकारीचा सल्ला घ्या. `;
-      
-      if (result.prevention) {
-        fullText += `प्रतिबंध. ${result.prevention}.`;
+        // Add safety warnings
+        fullText += `महत्वाचे सावधानी. शिडकाव करण्यापूर्वी संपूर्ण निर्देश वाचा. दस्ताने, मुखवटा आणि कपडे वापरा. शिडकाव करणे असूनसही व्यक्तीशी नेहमी संपर्क साधा. अनुभवी कृषी अधिकारीचा सल्ला घ्या. `;
+        
+        if (result.prevention) {
+          fullText += `प्रतिबंध. ${result.prevention}.`;
+        }
       }
 
       if (!fullText.trim()) {
         alert('कोणतीही माहिती उपलब्ध नाही');
         return;
       }
-
+                                
       const utterance = new SpeechSynthesisUtterance(fullText);
       utterance.lang = 'mr-IN'; // Marathi language
       utterance.rate = 0.9; // Slightly slower for clarity
@@ -80,6 +84,31 @@ const Result = ({ result, onReset }) => {
       window.speechSynthesis.speak(utterance);
     } else {
       alert('आपल्या ब्राउजरमध्ये ऑडिओ वैशिष्ट्य उपलब्ध नाही');
+    }
+  };
+
+  const speakTreatment = () => {
+    if ('speechSynthesis' in window) {
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+        return;
+      }
+
+      if (!result.treatment) return;
+
+      const fullText = `उपचार: ${result.treatment}`;
+      const utterance = new SpeechSynthesisUtterance(fullText);
+      utterance.lang = 'mr-IN';
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+
+      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -177,7 +206,7 @@ const Result = ({ result, onReset }) => {
               <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/>
               <path d="M17 16.91c-1.48 1.45-3.76 2.36-6 2.36s-4.52-.91-6-2.36m12-2.02h.01M5 16.91h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            {isSpeaking ? '⏸️ आईका चालू आहे...' : '🔊 आईका ऐका'}
+            {isSpeaking ? '⏸️ ऐका' : '🔊 ऐका'}
           </button>
 
           {/* Severity and Status */}
@@ -223,7 +252,18 @@ const Result = ({ result, onReset }) => {
 
           {/* Treatment Section */}
           {result.treatment && (
-            <div className="space-y-3">
+            <div className="space-y-3 relative">
+              <button 
+                onClick={speakTreatment}
+                className={`absolute right-3 top-3 p-2 rounded-full shadow-sm transition-all z-10 
+                  ${isSpeaking ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+                title="फक्त उपचार ऐका"
+              >
+                <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/>
+                  <path d="M17 16.91c-1.48 1.45-3.76 2.36-6 2.36s-4.52-.91-6-2.36m12-2.02h.01M5 16.91h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
               <InfoTab 
                 icon="💊"
                 label="उपचार / औषधे (Treatment)"
